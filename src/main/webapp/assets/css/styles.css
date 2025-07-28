@@ -1,0 +1,181 @@
+/* === Global Styles === */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #1c1f24, #3a3d42);
+    color: #ddd;
+    margin: 0;
+    padding: 0;
+}
+
+/* === Navigation Bar === */
+.navbar {
+    background: #25282c;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.navbar .logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #00aaff;
+}
+.navbar ul {
+    list-style: none;
+    display: flex;
+    padding: 0;
+}
+.navbar ul li {
+    margin: 0 15px;
+}
+.navbar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+.navbar ul li a:hover {
+    color: #00aaff;
+}
+.nav-icons {
+    display: flex;
+    align-items: center;
+}
+.nav-icons input {
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+    margin-right: 10px;
+}
+.nav-icons a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 10px;
+}
+.nav-icons a:hover {
+    color: #00aaff;
+}
+
+/* === Hero Section === */
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background: url('/Electrmerce/assets/images/hero-bg.jpg') no-repeat center center/cover;
+}
+.hero h1 {
+    font-size: 3rem;
+    color: #00aaff;
+}
+.hero p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: #ccc;
+}
+.hero .btn {
+    background: #00aaff;
+    color: #fff;
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.hero .btn:hover {
+    background: #0088cc;
+}
+
+/* === Featured Products Section === */
+.featured-products {
+    text-align: center;
+    padding: 50px 20px;
+}
+.featured-products h2 {
+    font-size: 2.5rem;
+    color: #00aaff;
+    margin-bottom: 20px;
+}
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* === Product Cards === */
+.product-card {
+    background: #2a2d32;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+}
+.product-card img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+.product-card h3 {
+    font-size: 1.5rem;
+    color: #00aaff;
+    margin-top: 10px;
+}
+.product-card .price {
+    font-size: 1.2rem;
+    color: #fff;
+    margin-top: 5px;
+}
+.product-card .btn {
+    background: #00aaff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.product-card .btn:hover {
+    background: #0088cc;
+}
+
+/* === Categories Section === */
+.categories {
+    text-align: center;
+    padding: 50px 20px;
+}
+.categories h2 {
+    font-size: 2.5rem;
+    color: #00aaff;
+    margin-bottom: 20px;
+}
+.category-grid {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.category-card {
+    background: #2a2d32;
+    padding: 15px 30px;
+    border-radius: 8px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+.category-card:hover {
+    background: #00aaff;
+}
+
+/* === Footer === */
+.footer {
+    background: #1c1f24;
+    text-align: center;
+    padding: 20px;
+    color: #ccc;
+}

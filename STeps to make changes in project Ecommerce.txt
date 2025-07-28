@@ -1,0 +1,22 @@
+STeps to make changes in project
+
+1) C:\Tomcat\apache-tomcat-9.0.95\bin\shutdown.bat
+
+2) Make changes in project
+
+3)cd C:\Users\eshaj\VSCodeProjects\ecommerceproject
+
+4)mvn clean package
+
+5)C:\Users\eshaj\VSCodeProjects\ecommerceproject\target\EcommerceProject-1.0-SNAPSHOT.war
+
+6)Copy-Item "C:\Users\eshaj\VSCodeProjects\ecommerceproject\target\EcommerceProject-1.0-SNAPSHOT.war" "C:\Tomcat\apache-tomcat-9.0.95\webapps\" -Force
+
+7)C:\Tomcat\apache-tomcat-9.0.95\bin\startup.bat
+
+8) Now go to the site
+
+
+
+
+
