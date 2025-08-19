@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8.0
+    container_name: shopmate-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: shopmate
+      MYSQL_USER: shopuser
+      MYSQL_PASSWORD: shoppass
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    container_name: shopmate-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
