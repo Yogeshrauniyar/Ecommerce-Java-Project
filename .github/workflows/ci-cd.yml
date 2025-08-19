@@ -40,7 +40,7 @@ jobs:
       # 5️⃣ Build Docker image
       - name: Build Docker image
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/shopmate:sha-${GITHUB_SHA::7}
+          IMAGE=ghcr.io/yogeshrauniyar/shopmate:sha-${GITHUB_SHA::7}
           docker build -t $IMAGE .
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
