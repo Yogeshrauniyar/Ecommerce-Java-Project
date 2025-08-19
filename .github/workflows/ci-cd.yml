@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ cloud-deploy ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: yogeshrauniyar/shopmate
+
 permissions:
   contents: read
   packages: write
@@ -13,6 +17,7 @@ permissions:
 jobs:
   build-test-publish:
     runs-on: ubuntu-latest
+    
     steps:
       # 1️⃣ Checkout code
       - name: Checkout repository
@@ -25,11 +30,23 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 3️⃣ Build with Maven
+      # 3️⃣ Cache Maven dependencies for faster builds
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # 4️⃣ Build with Maven
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # 4️⃣ Login to GitHub Container Registry
+      # 5️⃣ Run unit tests
+      - name: Run unit tests
+        run: mvn test
+
+      # 6️⃣ Login to GitHub Container Registry
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -37,23 +54,92 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5️⃣ Build Docker image
-      - name: Build Docker image
+      # 7️⃣ Build and Push Docker image
+      - name: Build and Push Docker image
         run: |
-          IMAGE=ghcr.io/yogeshrauniyar/shopmate:sha-${GITHUB_SHA::7}
-          docker build -t $IMAGE .
+          IMAGE=ghcr.io/${{ env.IMAGE_NAME }}:sha-${GITHUB_SHA::7}
+          LATEST_IMAGE=ghcr.io/${{ env.IMAGE_NAME }}:latest
+          
+          echo "Building Docker image..."
+          docker build -t $IMAGE -t $LATEST_IMAGE .
+          
+          echo "Pushing Docker images..."
+          docker push $IMAGE
+          docker push $LATEST_IMAGE
+          
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+          echo "LATEST_IMAGE=$LATEST_IMAGE" >> $GITHUB_ENV
 
-      # 6️⃣ Push Docker image
-      - name: Push Docker image
-        run: docker push ${{ env.IMAGE }}
-
-      # 7️⃣ Install Docker Compose plugin (required for docker compose)
+      # 8️⃣ Install Docker Compose (FIXED VERSION)
       - name: Install Docker Compose
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
+          # Download and install Docker Compose v2 standalone
+          sudo curl -SL https://github.com/docker/compose/releases/download/v2.24.1/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker-compose --version
 
-      # 8️⃣ Optional: Run Docker Compose for smoke test
-      - name: Run Docker Compose (Test)
-        run: docker compose up -d --build
+      # 9️⃣ Create test environment configuration
+      - name: Create test environment
+        run: |
+          cat << EOF > .env.test
+          MYSQL_ROOT_PASSWORD=testroot123
+          MYSQL_DATABASE=shopmate_test
+          MYSQL_USER=test_user
+          MYSQL_PASSWORD=test_pass123
+          DB_HOST=mysql
+          DB_PORT=3306
+          DB_NAME=shopmate_test
+          DB_USER=test_user
+          DB_PASSWORD=test_pass123
+          APP_PORT=8080
+          COMPOSE_PROJECT_NAME=shopmate-ci-test
+          EOF
+
+      # 🔟 Run Integration Tests with Docker Compose
+      - name: Run Integration Tests
+        run: |
+          echo "🚀 Starting integration tests..."
+          
+          # Use the built image for testing
+          export IMAGE_TAG=${{ env.IMAGE }}
+          
+          # Start services using test configuration
+          docker-compose -f docker-compose.test.yml --env-file .env.test up -d
+          
+          echo "⏳ Waiting for services to be ready..."
+          
+          # Wait for MySQL to be ready (max 2 minutes)
+          timeout 120 bash -c 'until docker-compose -f docker-compose.test.yml exec -T mysql mysqladmin ping -h localhost -u root -ptestroot123 --silent; do echo "Waiting for MySQL..."; sleep 5; done'
+          
+          echo "✅ MySQL is ready!"
+          
+          # Wait for application to be ready (max 2 minutes)  
+          timeout 120 bash -c 'until curl -f http://localhost:8080/ > /dev/null 2>&1; do echo "Waiting for application..."; sleep 10; done'
+          
+          echo "✅ Application is ready!"
+          
+          # Run basic health checks
+          echo "🧪 Running health checks..."
+          curl -f http://localhost:8080/ || (echo "❌ Health check failed" && exit 1)
+          
+          echo "🎉 Integration tests passed!"
+
+      # 1️⃣1️⃣ Cleanup test environment
+      - name: Cleanup test environment
+        if: always()
+        run: |
+          echo "🧹 Cleaning up test environment..."
+          docker-compose -f docker-compose.test.yml --env-file .env.test down -v || true
+          docker system prune -f || true
+
+      # 1️⃣2️⃣ Show deployment info
+      - name: Show deployment info
+        if: success()
+        run: |
+          echo "🎉 Build and tests completed successfully!"
+          echo ""
+          echo "📦 Docker Images Published:"
+          echo "  - ${{ env.IMAGE }}"
+          echo "  - ${{ env.LATEST_IMAGE }}"
+          echo ""
+          echo "🚀 Ready for deployment!"
