@@ -37,11 +37,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5️⃣ Build Docker image (lowercase)
+      # 5️⃣ Build Docker image
       - name: Build Docker image
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/shopmate:sha-${GITHUB_SHA::7}
-          IMAGE=${IMAGE,,}   # convert to lowercase
           docker build -t $IMAGE .
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
@@ -49,6 +48,12 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ env.IMAGE }}
 
-      # 7️⃣ Optional: Run Docker Compose for smoke test
+      # 7️⃣ Install Docker Compose plugin (required for docker compose)
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+
+      # 8️⃣ Optional: Run Docker Compose for smoke test
       - name: Run Docker Compose (Test)
         run: docker compose up -d --build
