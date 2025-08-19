@@ -51,4 +51,4 @@ jobs:
 
       # 7️⃣ Optional: Run Docker Compose for smoke test
       - name: Run Docker Compose (Test)
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
